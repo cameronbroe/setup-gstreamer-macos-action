@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "setup-gstreamer-macos-action",
+  "version": "0.1.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "A simple GitHub action to set up GStreamer runtime and development packages for macOS runners",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,21 +15,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/cameronbroe/setup-gstreamer-macos-action.git"
   },
   "keywords": [
     "actions",
-    "node",
+    "gstreamer",
     "setup"
   ],
-  "author": "YourNameOrOrganization",
+  "author": "Cameron Roe",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.0"
+    "@actions/core": "^1.2.0",
+    "@actions/tool-cache": "^1.5.5",
+    "lodash": "^4.17.15",
+    "superagent": "^5.3.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
+    "@types/lodash": "^4.14.157",
     "@types/node": "^12.7.12",
+    "@types/superagent": "^4.1.8",
     "@typescript-eslint/parser": "^2.8.0",
     "@zeit/ncc": "^0.20.5",
     "eslint": "^5.16.0",
