@@ -27,8 +27,7 @@ async function validateFileChecksum(
     const fileChecksum = fileHasher.digest('hex')
     core.info(`Computed file checksum as: ${fileChecksum}`)
 
-    core.info(util.inspect(res.body, true, null));
-    const [baseChecksum, baseFilename] = _.split(res.body, ' ')
+    const [baseChecksum, baseFilename] = _.split(res.text.trim(), ' ')
     core.info(
       `Got base checksum: ${baseChecksum} and filename: ${baseFilename}`
     )
