@@ -3437,6 +3437,7 @@ const superagent = __importStar(__webpack_require__(812));
 const crypto = __importStar(__webpack_require__(417));
 const fs = __importStar(__webpack_require__(747));
 const _ = __importStar(__webpack_require__(557));
+const util = __importStar(__webpack_require__(669));
 var PackageType;
 (function (PackageType) {
     PackageType["Runtime"] = "";
@@ -3445,13 +3446,14 @@ var PackageType;
 function validateFileChecksum(file, version, packageType) {
     return __awaiter(this, void 0, void 0, function* () {
         const checksumUrl = new URL(`https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-${packageType}${version}-x86_64.pkg.sha256sum`);
-        core.debug(`Downloading checksum from ${checksumUrl}`);
+        core.info(`Downloading checksum from ${checksumUrl}`);
         superagent.get(checksumUrl.toString()).then((res) => __awaiter(this, void 0, void 0, function* () {
             const fileHasher = crypto.createHash('sha256');
             const fileContents = fs.readFileSync(file);
             fileHasher.update(fileContents);
             const fileChecksum = fileHasher.digest('hex');
             core.info(`Computed file checksum as: ${fileChecksum}`);
+            core.info(util.inspect(res.body, true, null));
             const [baseChecksum, baseFilename] = _.split(res.body, ' ');
             core.info(`Got base checksum: ${baseChecksum} and filename: ${baseFilename}`);
             if (baseChecksum === fileChecksum &&

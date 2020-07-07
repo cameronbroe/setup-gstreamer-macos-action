@@ -4,6 +4,7 @@ import * as superagent from 'superagent'
 import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as _ from 'lodash'
+import * as util from 'util'
 
 enum PackageType {
   Runtime = '',
@@ -18,7 +19,7 @@ async function validateFileChecksum(
   const checksumUrl = new URL(
     `https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-${packageType}${version}-x86_64.pkg.sha256sum`
   )
-  core.debug(`Downloading checksum from ${checksumUrl}`)
+  core.info(`Downloading checksum from ${checksumUrl}`)
   superagent.get(checksumUrl.toString()).then(async res => {
     const fileHasher = crypto.createHash('sha256')
     const fileContents = fs.readFileSync(file)
@@ -26,6 +27,7 @@ async function validateFileChecksum(
     const fileChecksum = fileHasher.digest('hex')
     core.info(`Computed file checksum as: ${fileChecksum}`)
 
+    core.info(util.inspect(res.body, true, null));
     const [baseChecksum, baseFilename] = _.split(res.body, ' ')
     core.info(
       `Got base checksum: ${baseChecksum} and filename: ${baseFilename}`
