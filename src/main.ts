@@ -24,20 +24,20 @@ async function validateFileChecksum(
     const fileContents = fs.readFileSync(file)
     fileHasher.update(fileContents)
     const fileChecksum = fileHasher.digest('hex')
-    core.debug(`Computed file checksum as: ${fileChecksum}`)
+    core.info(`Computed file checksum as: ${fileChecksum}`)
 
     const [baseChecksum, baseFilename] = _.split(res.body, ' ')
-    core.debug(
+    core.info(
       `Got base checksum: ${baseChecksum} and filename: ${baseFilename}`
     )
     if (
       baseChecksum === fileChecksum &&
       baseFilename === checksumUrl.pathname
     ) {
-      core.debug('Checksum validation passed!')
+      core.info('Checksum validation passed!')
       return true
     } else {
-      core.debug('Checksum validation failed :(')
+      core.info('Checksum validation failed :(')
       return false
     }
   })
@@ -47,27 +47,27 @@ async function validateFileChecksum(
 async function run(): Promise<void> {
   try {
     const version = core.getInput('version')
-    core.debug(`Setting up GStreamer version ${version}`)
+    core.info(`Setting up GStreamer version ${version}`)
 
     const runtimePkgUrl = `https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-${version}-x86_64.pkg`
     const developmentPkgUrl = `https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-devel-${version}-x86_64.pkg`
 
-    core.debug(`Downloading GStreamer runtime package from: ${runtimePkgUrl}`)
+    core.info(`Downloading GStreamer runtime package from: ${runtimePkgUrl}`)
     const runtimePath = await cache.downloadTool(runtimePkgUrl)
 
-    core.debug(
+    core.info(
       `Downloading GStreamer development package from: ${developmentPkgUrl}`
     )
     const developmentPath = await cache.downloadTool(developmentPkgUrl)
 
-    core.debug(`Validating checksum of runtime package`)
+    core.info(`Validating checksum of runtime package`)
     const validRuntimePackage = await validateFileChecksum(
       runtimePath,
       version,
       PackageType.Runtime
     )
 
-    core.debug(`Validating checksum of development package`)
+    core.info(`Validating checksum of development package`)
     const validDevelopmentPackage = await validateFileChecksum(
       developmentPath,
       version,
@@ -75,7 +75,9 @@ async function run(): Promise<void> {
     )
 
     if (validRuntimePackage && validDevelopmentPackage) {
-      core.debug('Hooray! Our development and runtime packages are valid!')
+      core.info('Hooray! Our development and runtime packages are valid!')
+    } else {
+      core.info("Somethin' went wrong, oops. :(");
     }
   } catch (error) {
     core.setFailed(error.message)
