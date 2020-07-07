@@ -4,7 +4,7 @@ import * as superagent from 'superagent'
 import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as _ from 'lodash'
-import * as util from 'util'
+// import * as util from 'util'
 
 enum PackageType {
   Runtime = '',
@@ -27,18 +27,13 @@ async function validateFileChecksum(
     const fileChecksum = fileHasher.digest('hex')
     core.info(`Computed file checksum as: ${fileChecksum}`)
 
-    const [baseChecksum, baseFilename] = _.split(res.text.trim(), ' ')
-    core.info(
-      `Got base checksum: ${baseChecksum} and filename: ${baseFilename}`
-    )
-    if (
-      baseChecksum === fileChecksum &&
-      baseFilename === checksumUrl.pathname
-    ) {
+    const [baseChecksum] = _.split(res.text.trim(), ' ')
+    core.info(`Got base checksum: ${baseChecksum}`)
+    if (baseChecksum === fileChecksum) {
       core.info('Checksum validation passed!')
       return true
     } else {
-      core.info('Checksum validation failed :(')
+      core.error('Checksum validation failed :(')
       return false
     }
   })
@@ -78,7 +73,7 @@ async function run(): Promise<void> {
     if (validRuntimePackage && validDevelopmentPackage) {
       core.info('Hooray! Our development and runtime packages are valid!')
     } else {
-      core.info("Somethin' went wrong, oops. :(");
+      core.setFailed("Somethin' went wrong. :(")
     }
   } catch (error) {
     core.setFailed(error.message)

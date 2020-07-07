@@ -3437,6 +3437,7 @@ const superagent = __importStar(__webpack_require__(812));
 const crypto = __importStar(__webpack_require__(417));
 const fs = __importStar(__webpack_require__(747));
 const _ = __importStar(__webpack_require__(557));
+// import * as util from 'util'
 var PackageType;
 (function (PackageType) {
     PackageType["Runtime"] = "";
@@ -3452,15 +3453,14 @@ function validateFileChecksum(file, version, packageType) {
             fileHasher.update(fileContents);
             const fileChecksum = fileHasher.digest('hex');
             core.info(`Computed file checksum as: ${fileChecksum}`);
-            const [baseChecksum, baseFilename] = _.split(res.text.trim(), ' ');
-            core.info(`Got base checksum: ${baseChecksum} and filename: ${baseFilename}`);
-            if (baseChecksum === fileChecksum &&
-                baseFilename === checksumUrl.pathname) {
+            const [baseChecksum] = _.split(res.text.trim(), ' ');
+            core.info(`Got base checksum: ${baseChecksum}`);
+            if (baseChecksum === fileChecksum) {
                 core.info('Checksum validation passed!');
                 return true;
             }
             else {
-                core.info('Checksum validation failed :(');
+                core.error('Checksum validation failed :(');
                 return false;
             }
         }));
@@ -3486,7 +3486,7 @@ function run() {
                 core.info('Hooray! Our development and runtime packages are valid!');
             }
             else {
-                core.info("Somethin' went wrong, oops. :(");
+                core.setFailed("Somethin' went wrong. :(");
             }
         }
         catch (error) {
