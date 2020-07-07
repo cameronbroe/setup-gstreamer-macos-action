@@ -3445,28 +3445,25 @@ var PackageType;
 })(PackageType || (PackageType = {}));
 function validateFileChecksum(file, version, packageType) {
     return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(resolve => {
-            const checksumUrl = new URL(`https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-${packageType}${version}-x86_64.pkg.sha256sum`);
-            core.info(`Downloading checksum from ${checksumUrl}`);
-            superagent.get(checksumUrl.toString()).then(res => {
-                const fileHasher = crypto.createHash('sha256');
-                const fileContents = fs.readFileSync(file);
-                fileHasher.update(fileContents);
-                const fileChecksum = fileHasher.digest('hex');
-                core.info(`Computed file checksum as: ${fileChecksum}`);
-                const [baseChecksum] = _.split(res.text.trim(), ' ');
-                core.info(`Got base checksum: ${baseChecksum}`);
-                if (baseChecksum === fileChecksum) {
-                    core.info('Checksum validation passed!');
-                    resolve(true);
-                }
-                else {
-                    core.error('Checksum validation failed :(');
-                    resolve(false);
-                }
-            });
-            resolve(false);
-        });
+        const checksumUrl = new URL(`https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-${packageType}${version}-x86_64.pkg.sha256sum`);
+        core.info(`Downloading checksum from ${checksumUrl}`);
+        let res = yield superagent.get(checksumUrl.toString());
+        const fileHasher = crypto.createHash('sha256');
+        const fileContents = fs.readFileSync(file);
+        fileHasher.update(fileContents);
+        const fileChecksum = fileHasher.digest('hex');
+        core.info(`Computed file checksum as: ${fileChecksum}`);
+        const [baseChecksum] = _.split(res.text.trim(), ' ');
+        core.info(`Got base checksum: ${baseChecksum}`);
+        if (baseChecksum === fileChecksum) {
+            core.info('Checksum validation passed!');
+            return true;
+        }
+        else {
+            core.error('Checksum validation failed :(');
+            return false;
+        }
+        return false;
     });
 }
 function run() {
