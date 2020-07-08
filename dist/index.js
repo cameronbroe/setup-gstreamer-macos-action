@@ -3437,7 +3437,10 @@ const superagent = __importStar(__webpack_require__(812));
 const crypto = __importStar(__webpack_require__(417));
 const fs = __importStar(__webpack_require__(747));
 const _ = __importStar(__webpack_require__(557));
-// import * as util from 'util'
+const path = __importStar(__webpack_require__(622));
+const cp = __importStar(__webpack_require__(129));
+const util = __importStar(__webpack_require__(669));
+const execute = util.promisify(cp.exec);
 var PackageType;
 (function (PackageType) {
     PackageType["Runtime"] = "";
@@ -3463,7 +3466,6 @@ function validateFileChecksum(file, version, packageType) {
             core.error('Checksum validation failed :(');
             return false;
         }
-        return false;
     });
 }
 function downloadAndCache(version) {
@@ -3496,27 +3498,36 @@ function downloadAndCache(version) {
         }
     });
 }
-;
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const version = core.getInput('version');
     core.info(`Setting up GStreamer version ${version}`);
     let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version);
     let cachedDevelopmentPkg = cache.find('macos-gstreamer-development-pkg', version);
+    let runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
+    let developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
     if (!cachedRuntimePkg && !cachedDevelopmentPkg) {
-        ;
         [cachedRuntimePkg, cachedDevelopmentPkg] = yield downloadAndCache(version);
+        runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
+        developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
     }
     else {
         // Let's recheck our copy just to make sure it's the same file as we expect
-        let validRuntimePkg = yield validateFileChecksum(cachedRuntimePkg, version, PackageType.Runtime);
-        let validDevelopmentPkg = yield validateFileChecksum(cachedDevelopmentPkg, version, PackageType.Development);
+        let validRuntimePkg = yield validateFileChecksum(runtimePkgFile, version, PackageType.Runtime);
+        let validDevelopmentPkg = yield validateFileChecksum(developmentPkgFile, version, PackageType.Development);
         if (!validRuntimePkg || !validDevelopmentPkg) {
-            ;
             [cachedRuntimePkg, cachedDevelopmentPkg] = yield downloadAndCache(version);
+            runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
+            developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
         }
     }
-    core.info(`Installing GStreamer runtime from cached path: ${cachedRuntimePkg}`);
-    core.info(`Installing GStreamer development from cached path: ${cachedDevelopmentPkg}`);
+    core.info(`Installing GStreamer runtime from cached path: ${runtimePkgFile}`);
+    const runtimeInstallerProcess = yield execute(`sudo installer -pkg ${runtimePkgFile} -target /`);
+    core.info(runtimeInstallerProcess.stdout);
+    core.error(runtimeInstallerProcess.stderr);
+    core.info(`Installing GStreamer development from cached path: ${developmentPkgFile}`);
+    const developmentInstallerProcess = yield execute(`sudo installer -pkg ${developmentPkgFile} -target /`);
+    core.info(developmentInstallerProcess.stdout);
+    core.error(developmentInstallerProcess.stderr);
 }))();
 
 
