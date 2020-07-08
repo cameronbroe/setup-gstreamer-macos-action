@@ -39,11 +39,8 @@ async function validateFileChecksum(
   return false
 }
 
-async function run(): Promise<void> {
+async function downloadAndCache(version: string): Promise<string[]> {
   try {
-    const version = core.getInput('version')
-    core.info(`Setting up GStreamer version ${version}`)
-
     const runtimePkgUrl = `https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-${version}-x86_64.pkg`
     const developmentPkgUrl = `https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-devel-${version}-x86_64.pkg`
 
@@ -71,12 +68,62 @@ async function run(): Promise<void> {
 
     if (validRuntimePackage && validDevelopmentPackage) {
       core.info('Hooray! Our development and runtime packages are valid!')
+      const cachedRuntimePath = await cache.cacheFile(
+        runtimePath,
+        `gstreamer-1.0-${version}-x86_64.pkg`,
+        'macos-gstreamer-runtime-pkg',
+        version
+      )
+      const cachedDevelopmentPath = await cache.cacheFile(
+        developmentPath,
+        `gstreamer-1.0-devel-${version}-x86_64.pkg`,
+        'macos-gstreamer-development-pkg',
+        version
+      )
+      return [cachedRuntimePath, cachedDevelopmentPath]
     } else {
       core.setFailed("Somethin' went wrong. :(")
+      return ['', '']
     }
   } catch (error) {
     core.setFailed(error.message)
+    return ['', '']
   }
 }
 
-run()
+;async () => {
+  const version = core.getInput('version')
+  core.info(`Setting up GStreamer version ${version}`)
+  let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version)
+  let cachedDevelopmentPkg = cache.find(
+    'macos-gstreamer-development-pkg',
+    version
+  )
+  if (!cachedRuntimePkg && !cachedDevelopmentPkg) {
+    ;[cachedRuntimePkg, cachedDevelopmentPkg] = await downloadAndCache(version)
+  } else {
+    // Let's recheck our copy just to make sure it's the same file as we expect
+    let validRuntimePkg = await validateFileChecksum(
+      cachedRuntimePkg,
+      version,
+      PackageType.Runtime
+    )
+    let validDevelopmentPkg = await validateFileChecksum(
+      cachedDevelopmentPkg,
+      version,
+      PackageType.Development
+    )
+
+    if (!validRuntimePkg || !validDevelopmentPkg) {
+      ;[cachedRuntimePkg, cachedDevelopmentPkg] = await downloadAndCache(
+        version
+      )
+    }
+  }
+  core.info(
+    `Installing GStreamer runtime from cached path: ${cachedRuntimePkg}`
+  )
+  core.info(
+    `Installing GStreamer development from cached path: ${cachedDevelopmentPkg}`
+  )
+}
