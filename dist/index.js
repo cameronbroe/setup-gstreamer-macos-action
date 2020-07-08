@@ -3497,7 +3497,7 @@ function downloadAndCache(version) {
     });
 }
 ;
-() => __awaiter(void 0, void 0, void 0, function* () {
+(() => __awaiter(void 0, void 0, void 0, function* () {
     const version = core.getInput('version');
     core.info(`Setting up GStreamer version ${version}`);
     let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version);
@@ -3517,7 +3517,7 @@ function downloadAndCache(version) {
     }
     core.info(`Installing GStreamer runtime from cached path: ${cachedRuntimePkg}`);
     core.info(`Installing GStreamer development from cached path: ${cachedDevelopmentPkg}`);
-});
+}))();
 
 
 /***/ }),

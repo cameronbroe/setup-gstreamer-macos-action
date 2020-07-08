@@ -91,7 +91,7 @@ async function downloadAndCache(version: string): Promise<string[]> {
   }
 }
 
-;async () => {
+;(async () => {
   const version = core.getInput('version')
   core.info(`Setting up GStreamer version ${version}`)
   let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version)
@@ -126,4 +126,4 @@ async function downloadAndCache(version: string): Promise<string[]> {
   core.info(
     `Installing GStreamer development from cached path: ${cachedDevelopmentPkg}`
   )
-}
+})()
