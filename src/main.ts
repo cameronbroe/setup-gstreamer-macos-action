@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
-import * as cache from '@actions/tool-cache';
+import * as cache from '@actions/cache';
+import * as tc from '@actions/tool-cache';
 import * as superagent from 'superagent';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -43,10 +44,10 @@ async function downloadAndCache(version: string): Promise<string[]> {
     const developmentPkgUrl = `https://gstreamer.freedesktop.org/data/pkg/osx/${version}/gstreamer-1.0-devel-${version}-x86_64.pkg`;
 
     core.info(`Downloading GStreamer runtime package from: ${runtimePkgUrl}`);
-    const runtimePath = await cache.downloadTool(runtimePkgUrl);
+    const runtimePath = await tc.downloadTool(runtimePkgUrl);
 
     core.info(`Downloading GStreamer development package from: ${developmentPkgUrl}`);
-    const developmentPath = await cache.downloadTool(developmentPkgUrl);
+    const developmentPath = await tc.downloadTool(developmentPkgUrl);
 
     core.info(`Validating checksum of runtime package`);
     const validRuntimePackage = await validateFileChecksum(runtimePath, version, PackageType.Runtime);
@@ -56,20 +57,25 @@ async function downloadAndCache(version: string): Promise<string[]> {
 
     if (validRuntimePackage && validDevelopmentPackage) {
       core.info('Hooray! Our development and runtime packages are valid!');
-      const cachedRuntimePath = await cache.cacheFile(
+      const cachedRuntimePath = await tc.cacheFile(
         runtimePath,
         `gstreamer-1.0-${version}-x86_64.pkg`,
         'macos-gstreamer-runtime-pkg',
         version
       );
-      const cachedDevelopmentPath = await cache.cacheFile(
+      const cachedDevelopmentPath = await tc.cacheFile(
         developmentPath,
         `gstreamer-1.0-devel-${version}-x86_64.pkg`,
         'macos-gstreamer-development-pkg',
         version
       );
+      await cache.saveCache(
+        [path.join(cachedRuntimePath, '../../'), path.join(cachedDevelopmentPath, '../../')],
+        'setup-gstreamer-macos-action-cache'
+      );
       core.info(cachedRuntimePath);
       core.info(cachedDevelopmentPath);
+
       return [cachedRuntimePath, cachedDevelopmentPath];
     } else {
       core.setFailed("Somethin' went wrong. :(");
@@ -82,12 +88,12 @@ async function downloadAndCache(version: string): Promise<string[]> {
 }
 
 (async () => {
-  core.info(_.join(cache.findAllVersions('macos-gstreamer-runtime-pkg'), ' | '));
+  await cache.restoreCache(['/Users/runner/hostedtoolcache/*'], 'setup-gstreamer-macos-action-cache');
   const version = core.getInput('version');
   core.info(`Setting up GStreamer version ${version}`);
-  let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version);
+  let cachedRuntimePkg = tc.find('macos-gstreamer-runtime-pkg', version);
   core.info(cachedRuntimePkg);
-  let cachedDevelopmentPkg = cache.find('macos-gstreamer-development-pkg', version);
+  let cachedDevelopmentPkg = tc.find('macos-gstreamer-development-pkg', version);
   core.info(cachedDevelopmentPkg);
   let runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
   core.info(runtimePkgFile);
