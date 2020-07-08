@@ -3485,6 +3485,8 @@ function downloadAndCache(version) {
                 core.info('Hooray! Our development and runtime packages are valid!');
                 const cachedRuntimePath = yield cache.cacheFile(runtimePath, `gstreamer-1.0-${version}-x86_64.pkg`, 'macos-gstreamer-runtime-pkg', version);
                 const cachedDevelopmentPath = yield cache.cacheFile(developmentPath, `gstreamer-1.0-devel-${version}-x86_64.pkg`, 'macos-gstreamer-development-pkg', version);
+                core.info(cachedRuntimePath);
+                core.info(cachedDevelopmentPath);
                 return [cachedRuntimePath, cachedDevelopmentPath];
             }
             else {
@@ -3499,6 +3501,7 @@ function downloadAndCache(version) {
     });
 }
 (() => __awaiter(void 0, void 0, void 0, function* () {
+    core.info(_.join(cache.findAllVersions('macos-gstreamer-runtime-pkg'), ' | '));
     const version = core.getInput('version');
     core.info(`Setting up GStreamer version ${version}`);
     let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version);
