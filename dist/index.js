@@ -3502,10 +3502,15 @@ function downloadAndCache(version) {
     const version = core.getInput('version');
     core.info(`Setting up GStreamer version ${version}`);
     let cachedRuntimePkg = cache.find('macos-gstreamer-runtime-pkg', version);
+    core.info(cachedRuntimePkg);
     let cachedDevelopmentPkg = cache.find('macos-gstreamer-development-pkg', version);
+    core.info(cachedDevelopmentPkg);
     let runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
+    core.info(runtimePkgFile);
     let developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
+    core.info(developmentPkgFile);
     if (!cachedRuntimePkg && !cachedDevelopmentPkg) {
+        core.info('Did not find files in cache at all');
         [cachedRuntimePkg, cachedDevelopmentPkg] = yield downloadAndCache(version);
         runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
         developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
@@ -3515,6 +3520,7 @@ function downloadAndCache(version) {
         let validRuntimePkg = yield validateFileChecksum(runtimePkgFile, version, PackageType.Runtime);
         let validDevelopmentPkg = yield validateFileChecksum(developmentPkgFile, version, PackageType.Development);
         if (!validRuntimePkg || !validDevelopmentPkg) {
+            core.info('Files in cache did not match is on GStreamer mirror');
             [cachedRuntimePkg, cachedDevelopmentPkg] = yield downloadAndCache(version);
             runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
             developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
