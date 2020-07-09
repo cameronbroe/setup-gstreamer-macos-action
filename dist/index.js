@@ -5016,7 +5016,10 @@ function downloadAndCache(version) {
     });
 }
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    yield cache.restoreCache(['/Users/runner/hostedtoolcache/*'], 'setup-gstreamer-macos-action-cache');
+    const cacheKey = yield cache.restoreCache(['/Users/runner/hostedtoolcache/*'], 'setup-gstreamer-macos-action-cache');
+    core.debug(`Retrieved cache from key: ${cacheKey}`);
+    core.debug(_.join(fs.readdirSync('/Users/runner/hostedtoolcache'), '\n'));
+    return;
     const version = core.getInput('version');
     core.info(`Setting up GStreamer version ${version}`);
     let cachedRuntimePkg = tc.find('macos-gstreamer-runtime-pkg', version);
@@ -5043,13 +5046,21 @@ function downloadAndCache(version) {
         }
     }
     core.info(`Installing GStreamer runtime from cached path: ${runtimePkgFile}`);
-    const runtimeInstallerProcess = yield execute(`sudo installer -pkg ${runtimePkgFile} -target /`);
-    core.info(runtimeInstallerProcess.stdout);
-    core.error(runtimeInstallerProcess.stderr);
+    try {
+        const runtimeInstallerProcess = yield execute(`sudo installer -pkg ${runtimePkgFile} -target /`);
+    }
+    catch (error) {
+        core.info(error.stdout);
+        core.error(error.stderr);
+    }
     core.info(`Installing GStreamer development from cached path: ${developmentPkgFile}`);
-    const developmentInstallerProcess = yield execute(`sudo installer -pkg ${developmentPkgFile} -target /`);
-    core.info(developmentInstallerProcess.stdout);
-    core.error(developmentInstallerProcess.stderr);
+    try {
+        const developmentInstallerProcess = yield execute(`sudo installer -pkg ${developmentPkgFile} -target /`);
+    }
+    catch (error) {
+        core.info(error.stdout);
+        core.error(error.stderr);
+    }
 }))();
 
 
