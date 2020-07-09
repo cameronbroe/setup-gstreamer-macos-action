@@ -21,3 +21,5 @@ jobs:
     - uses: ./
       with: 
         version: '1.16.2'
+    - run: |
+        ls -la /Library/Frameworks

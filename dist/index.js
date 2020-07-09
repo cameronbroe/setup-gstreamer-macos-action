@@ -5002,8 +5002,6 @@ function downloadAndCache(version) {
                 const cachedRuntimePath = yield tc.cacheFile(runtimePath, `gstreamer-1.0-${version}-x86_64.pkg`, 'macos-gstreamer-runtime-pkg', version);
                 const cachedDevelopmentPath = yield tc.cacheFile(developmentPath, `gstreamer-1.0-devel-${version}-x86_64.pkg`, 'macos-gstreamer-development-pkg', version);
                 yield cache.saveCache([path.join(cachedRuntimePath, '../../'), path.join(cachedDevelopmentPath, '../../')], 'setup-gstreamer-macos-action-cache');
-                core.info(cachedRuntimePath);
-                core.info(cachedDevelopmentPath);
                 return [cachedRuntimePath, cachedDevelopmentPath];
             }
             else {
@@ -5022,13 +5020,11 @@ function downloadAndCache(version) {
     const version = core.getInput('version');
     core.info(`Setting up GStreamer version ${version}`);
     let cachedRuntimePkg = tc.find('macos-gstreamer-runtime-pkg', version);
-    core.info(cachedRuntimePkg);
+    core.debug(`Found path in runtime cache: ${cachedRuntimePkg}`);
     let cachedDevelopmentPkg = tc.find('macos-gstreamer-development-pkg', version);
-    core.info(cachedDevelopmentPkg);
+    core.debug(`Found path in dev cache: ${cachedDevelopmentPkg}`);
     let runtimePkgFile = path.join(cachedRuntimePkg, `gstreamer-1.0-${version}-x86_64.pkg`);
-    core.info(runtimePkgFile);
     let developmentPkgFile = path.join(cachedDevelopmentPkg, `gstreamer-1.0-devel-${version}-x86_64.pkg`);
-    core.info(developmentPkgFile);
     if (!cachedRuntimePkg && !cachedDevelopmentPkg) {
         core.info('Did not find files in cache at all');
         [cachedRuntimePkg, cachedDevelopmentPkg] = yield downloadAndCache(version);
