@@ -24,3 +24,4 @@ jobs:
     - run: |
         ls -la /Library/Frameworks
         ls -la /Users/runner/hostedtoolcache
+        whoami
