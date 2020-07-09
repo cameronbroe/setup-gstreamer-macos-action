@@ -85,7 +85,11 @@ async function downloadAndCache(version: string): Promise<string[]> {
 }
 
 (async () => {
-  const cacheKey = await cache.restoreCache(['/Users/runner/hostedtoolcache/*'], 'setup-gstreamer-macos-action-cache');
+  const cacheKey = await cache.restoreCache(
+    ['/Users/runner/hostedtoolcache/macos-gstreamer-runtime-pkg', '/Users/runner/hostedtoolcache/macos-gstreamer-development-pkg'],
+    'setup-gstreamer-macos-action-cache'
+  );
+  await execute('sleep 10');
   core.debug(`Retrieved cache from key: ${cacheKey}`);
   core.debug(_.join(fs.readdirSync('/Users/runner/hostedtoolcache'), '\n'));
   return;

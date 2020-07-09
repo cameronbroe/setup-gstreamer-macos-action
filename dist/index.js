@@ -5016,7 +5016,8 @@ function downloadAndCache(version) {
     });
 }
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    const cacheKey = yield cache.restoreCache(['/Users/runner/hostedtoolcache/*'], 'setup-gstreamer-macos-action-cache');
+    const cacheKey = yield cache.restoreCache(['/Users/runner/hostedtoolcache/macos-gstreamer-runtime-pkg', '/Users/runner/hostedtoolcache/macos-gstreamer-development-pkg'], 'setup-gstreamer-macos-action-cache');
+    yield execute('sleep 10');
     core.debug(`Retrieved cache from key: ${cacheKey}`);
     core.debug(_.join(fs.readdirSync('/Users/runner/hostedtoolcache'), '\n'));
     return;
