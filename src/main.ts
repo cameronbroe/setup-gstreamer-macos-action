@@ -85,16 +85,18 @@ async function downloadAndCache(version: string): Promise<string[]> {
 }
 
 (async () => {
+  const version = core.getInput('version');
+  core.info(`Setting up GStreamer version ${version}`);
   const cacheKey = await cache.restoreCache(
-    ['/Users/runner/hostedtoolcache/macos-gstreamer-runtime-pkg', '/Users/runner/hostedtoolcache/macos-gstreamer-development-pkg'],
+    [
+      `/Users/runner/hostedtoolcache/macos-gstreamer-runtime-pkg/${version}/x64`,
+      `/Users/runner/hostedtoolcache/macos-gstreamer-development-pkg/${version}/x64`
+    ],
     'setup-gstreamer-macos-action-cache'
   );
-  await execute('sleep 10');
   core.debug(`Retrieved cache from key: ${cacheKey}`);
   core.debug(_.join(fs.readdirSync('/Users/runner/hostedtoolcache'), '\n'));
   return;
-  const version = core.getInput('version');
-  core.info(`Setting up GStreamer version ${version}`);
   let cachedRuntimePkg = tc.find('macos-gstreamer-runtime-pkg', version);
   core.debug(`Found path in runtime cache: ${cachedRuntimePkg}`);
   let cachedDevelopmentPkg = tc.find('macos-gstreamer-development-pkg', version);
