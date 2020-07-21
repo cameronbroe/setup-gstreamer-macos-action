@@ -29,7 +29,7 @@
     "@actions/cache": "^0.2.1",
     "@actions/core": "^1.2.0",
     "@actions/tool-cache": "^1.5.5",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "superagent": "^5.3.1"
   },
   "devDependencies": {
